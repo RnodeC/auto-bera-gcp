@@ -28,6 +28,8 @@
         chdir: terraform/
       register: terraform_outputs
 
+    - debug: var=terraform_outputs 
+
     - name: Set fact for Terraform outputs
       ansible.builtin.set_fact:
         tf_outputs: "{{ terraform_outputs.stdout | from_json }}"
@@ -65,7 +67,6 @@
 
   tasks:
     - name: Terraform Destroy
-      community.general.terraform:
-        state: absent
-        project_path: terraform/
-        variables: "{{ tfvars | lower }}"
+      command: terraform destroy -auto-approve
+      args:
+        chdir: terraform/

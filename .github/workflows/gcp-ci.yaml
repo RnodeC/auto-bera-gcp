@@ -121,7 +121,7 @@ jobs:
 
       - name: Run ansible playbook to create and configure infrastructure
         run: |
-          ansible-playbook playbook.yaml -e @ansible-vars.yaml -vvv
+          ansible-playbook playbook.yaml -e @ansible-vars.yaml
 
       - name: Run ansible playbook to destroy infrastructure
         run: |

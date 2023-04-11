@@ -113,7 +113,7 @@ jobs:
       - name: Destroy Infrastructure
         working-directory: terraform/
         run: |
-          terraform destroy -auto-approve -input=false tfplan
+          terraform destroy -auto-approve
       #  ansible-playbook playbook.yaml -e @ansible-vars.yaml --tags down
 
       - name: Purge GCP Credentials and SSH Key

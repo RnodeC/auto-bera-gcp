@@ -11,20 +11,20 @@ on:
       GCP_REGION:
         description: "The region where the infrastructure will be created"
         required: false
-        default: "us-central1"
       NAME:
         description: "The name to prefix all resources with"
         required: false
-        default: "rnodec-bera"
       MACHINE_TYPE:
         description: "The gcp instance type to use"
         required: false
-        default: "n1-standard-2"
   schedule:
     - cron: "0 1 * * 0"
 
 env:
   GCP_PROJECT: ${{ github.event.inputs.GCP_PROJECT || vars.GCP_PROJECT }}
+  NAME: ${{ github.event.inputs.NAME || 'rnodec-bera' }}
+  GCP_REGION: ${{ github.event.inputs.GCP_REGION || 'us-central1' }}
+  MACHINE_TYPE: ${{ github.event.inputs.MACHINE_TYPE || 'n1-standard-2'}}
 
 jobs:
   ansible-playbook:
@@ -65,10 +65,10 @@ jobs:
         run: |
           ansible-playbook playbook.yaml \
             -e "tfvars.GCP_PROJECT=${{ env.GCP_PROJECT }}" \
-            -e "tfvars.GCP_REGION=${{ github.event.inputs.GCP_REGION }}" \
+            -e "tfvars.GCP_REGION=${{ env.GCP_REGION }}" \
             -e "tfvars.GCP_CREDENTIALS_FILE=${{ env.GCP_CREDENTIALS_FILE }}" \
-            -e "tfvars.NAME=${{ github.event.inputs.NAME  }}" \
-            -e "tfvars.MACHINE_TYPE=${{ github.event.inputs.MACHINE_TYPE }}" \
+            -e "tfvars.NAME=${{ env.NAME }}" \
+            -e "tfvars.MACHINE_TYPE=${{ env.MACHINE_TYPE }}" \
             -e "ansible_user=${{ vars.ANSIBLE_USER }}" \
             -e "ansible_ssh_private_key_file=${{ env.SSH_KEY_FILE }}"
             
@@ -76,9 +76,9 @@ jobs:
         run: |
           ansible-playbook playbook.yaml --tags down \
           -e "tfvars.GCP_PROJECT=${{ env.GCP_PROJECT }}"
-          -e "tfvars.GCP_REGION=${{ github.event.inputs.GCP_REGION }}" \
+          -e "tfvars.GCP_REGION=${{ env.GCP_REGION }}" \
           -e "tfvars.GCP_CREDENTIALS_FILE=${{ env.GCP_CREDENTIALS_FILE }}" \
-          -e "tfvars.NAME=${{ github.event.inputs.NAME }}" \
+          -e "tfvars.NAME=${{ env.NAME }}" \
           -e "ansible_user=${{ vars.ANSIBLE_USER }}" \
           -e "ansible_ssh_private_key_file=${{ env.SSH_KEY_FILE }}"
 

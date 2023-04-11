@@ -46,12 +46,12 @@ jobs:
 
       - name: Install Ansible
         run: |
-          sudo apt-get update 
+          sudo apt-get update
           sudo apt-get install -y ansible
           ansible-galaxy role install RnodeC.beranode
           ansible --version
-          terraform version 
-          
+          terraform version
+
       - name: Set up GCP credentials
         env:
           GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
@@ -83,11 +83,11 @@ jobs:
             MACHINE_TYPE: ${{ env.MACHINE_TYPE }}
           EOF
           cat ansible-vars.yaml
-    
+
       - name: Run ansible playbook to create and configure infrastructure
         run: |
           ansible-playbook playbook.yaml -e @ansible-vars.yaml -vvv
-   
+
       - name: Destroy Infrastructure
         run: |
           ansible-playbook playbook.yaml -e @ansible-vars.yaml --tags down
@@ -95,6 +95,6 @@ jobs:
       - name: Purge GCP Credentials and SSH Key
         if: always()
         run: |
-          rm -f ${{ env.GCP_CREDENTIALS_FILE }} 
+          rm -f ${{ env.GCP_CREDENTIALS_FILE }}
           rm -f ${{ env.SSH_KEY_FILE }}
           rm -f ansible-vars.yaml

@@ -6,11 +6,12 @@
 
   tasks:
     - debug: var=tfvars
+    - debug: msg="{{ tfvars | lower }}"
     - name: Terraform apply
       community.general.terraform:
         state: present
-        force_init: true
         project_path: terraform/
+        force_init: true
         variables: "{{ tfvars | lower }}"
       register: tfapply
 

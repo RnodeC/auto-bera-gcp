@@ -3,11 +3,6 @@ variable "gcp_project" {
   type        = string
 }
 
-variable "gcp_credentials_file" {
-  description = "Path to the Google Cloud service account credentials JSON file"
-  type        = string
-}
-
 variable "labels" {
   description = "Map of key/value pairs to label all resources with"
   type        = map(string)

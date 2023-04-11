@@ -17,7 +17,6 @@ provider "google" {
   project     = var.gcp_project
   region      = var.gcp_region
   zone        = "${var.gcp_region}-a"
-  credentials = file(var.gcp_credentials_file)
 }
 
 resource "google_compute_network" "network" {
@@ -43,13 +42,25 @@ resource "google_compute_address" "public_ip" {
   name = "${var.name}-pip"
 }
 
-resource "google_compute_firewall" "firewall" {
+resource "google_compute_firewall" "p2pfirewall" {
   name    = "allow-bera-p2p"
   network = google_compute_network.network.self_link
 
   allow {
     protocol = "tcp"
-    ports    = ["26656", "22"]
+    ports    = ["26656"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+}
+
+resource "google_compute_firewall" "sshfirewall" {
+  name    = "allow-ssh"
+  network = google_compute_network.network.self_link
+
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
   }
 
   source_ranges = ["0.0.0.0/0"]

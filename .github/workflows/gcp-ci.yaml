@@ -89,7 +89,6 @@ jobs:
           tfvars:
             GCP_PROJECT: ${{ env.GCP_PROJECT }}
             GCP_REGION: ${{ env.GCP_REGION }}
-            GCP_CREDENTIALS_FILE: ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
             NAME: ${{ env.NAME }}
             MACHINE_TYPE: ${{ env.MACHINE_TYPE }}
           EOF
@@ -98,7 +97,6 @@ jobs:
           cat << EOF > "terraform/terraform.tfvars"
           gcp_project = "${{ env.GCP_PROJECT }}"
           gcp_region = "${{ env.GCP_REGION }}"
-          gcp_credentials_file = "${{ env.GOOGLE_APPLICATION_CREDENTIALS }}"
           name = "${{ env.NAME }}"
           machine_type = "${{ env.MACHINE_TYPE }}"
           EOF
@@ -122,8 +120,6 @@ jobs:
       #    terraform destroy -auto-approve
 
       - name: Run ansible playbook to create and configure infrastructure
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: 
         run: |
           ansible-playbook playbook.yaml -e @ansible-vars.yaml -vvv
 

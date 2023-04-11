@@ -21,13 +21,20 @@
       command: terraform apply -auto-approve -input=false tfplan 
       args:
         chdir: terraform/
-      register: tfapply 
 
-    - debug: var=tfapply
+    - name: Get Terraform outputs
+      ansible.builtin.command: terraform output -json
+      args:
+        chdir: terraform/
+      register: terraform_outputs
+
+    - name: Set fact for Terraform outputs
+      ansible.builtin.set_fact:
+        tf_outputs: "{{ terraform_outputs.stdout | from_json }}"
 
     - name: Add instance to inventory
       ansible.builtin.add_host:
-        name: "{{ tfapply.outputs.instance_ip_address.value }}"
+        name: "{{ tf_outputs.instance_ip_address.value }}"
         groups: nodes
 
 - name: Wait for instance to become ready

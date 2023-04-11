@@ -7,6 +7,11 @@
   tasks:
     - debug: msg="{{ tfvars | lower }}"
 
+    - name: Build terraform.tfvars 
+      ansible.builtin.template:
+        src: terraform/terraform.tfvars.j2
+        dest: terraform/terraform.tfvars
+
     - name: Initialize Terraform
       command: terraform init
       args:
@@ -22,21 +27,15 @@
       args:
         chdir: terraform/
 
-    - name: Get Terraform outputs
-      ansible.builtin.command: terraform output -json
+    - name: Get instance ip from terraform output
+      ansible.builtin.command: terraform output -raw instance_ip_address
       args:
         chdir: terraform/
-      register: terraform_outputs
-
-    - debug: var=terraform_outputs 
-
-    - name: Set fact for Terraform outputs
-      ansible.builtin.set_fact:
-        tf_outputs: "{{ terraform_outputs.stdout | from_json }}"
+      register: instance_ip_address
 
     - name: Add instance to inventory
       ansible.builtin.add_host:
-        name: "{{ tf_outputs.instance_ip_address.value }}"
+        name: "{{ instance_ip_address.stdout }}"
         groups: nodes
 
 - name: Wait for instance to become ready

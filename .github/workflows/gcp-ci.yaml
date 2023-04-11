@@ -1,0 +1,85 @@
+---
+name: Run Ansible playbook
+on:
+  workflow_dispatch:
+    inputs:
+      GCP_PROJECT:
+        description: "The GCP project ID to run the playbook against"
+        required: false
+      GCP_REGION:
+        description: "The region where the infrastructure will be created"
+        required: false
+      NAME:
+        description: "The name to prefix all resources with"
+        required: false
+      MACHINE_TYPE:
+        description: "The gcp instance type to use"
+        required: false
+  schedule:
+    - cron: "0 1 * * 0"
+
+env:
+  GCP_PROJECT: ${{ github.event.inputs.GCP_PROJECT || vars.GCP_PROJECT }}
+  GCP_REGION: ${{ github.event.inputs.GCP_REGION || us-central1 }}
+  NAME: ${{ github.event.inputs.NAME || "rnodec-bera" }}
+  MACHINE_TYPE: ${{ github.event.inputs.MACHINE_TYPE || "n1-standar-4" }}
+
+jobs:
+  ansible-playbook:
+    name: Run playbook
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Ansible
+        run: sudo apt-get update && sudo apt-get install -y ansible
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Set up GCP credentials
+        env:
+          GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+        run: |
+          echo "$GCP_CREDENTIALS" > gcp_credentials.json
+          echo "GCP_CREDENTIALS_FILE=$(pwd)/gcp_credentials.json" >> $GITHUB_ENV
+
+      - name: Set up SSH Key
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_PUBKEY: ${{ secrets.SSH_PUBKEY }}
+        run: |
+          echo "$SSH_KEY" > id_rsa
+          echo "$SSH_PUBKEY" > id_rsa.pub
+          chmod 0600 id_rsa
+          echo "SSH_KEY_FILE=$(pwd)/id_rsa" >> $GITHUB_ENV
+          echo "SSH_PUBKEY_FILE=$(pwd)/id_rsa.pub" >> $GITHUB_ENV
+
+      - name: Create Infrastructure
+        run: |
+          ansible-playbook playbook.yaml \
+            -e "tfvars.GCP_PROJECT=${{ env.GCP_PROJECT }}" \
+            -e "tfvars.GCP_REGION=${{ env.GCP_REGION }}" \
+            -e "tfvars.GCP_CREDENTIALS_FILE=${{ env.GCP_CREDENTIALS_FILE }}" \
+            -e "tfvars.NAME=${{ env.NAME }}" \
+            -e "MACHINE_TYPE=${{ env.MACHINE_TYPE }}" \
+            -e "ansible_user=${{ vars.ansible_user }}" \
+            -e "ansible_ssh_private_key_file=${{ env.SSH_KEY_FILE }}"
+            
+      - name: Destroy Infrastructure
+        run: |
+          ansible-playbook playbook.yaml --tags down \
+          -e "tfvars.GCP_PROJECT=${{ env.GCP_PROJECT }}"
+          -e "tfvars.GCP_REGION=${{ env.GCP_REGION }}" \
+          -e "tfvars.GCP_CREDENTIALS_FILE=${{ env.GCP_CREDENTIALS_FILE }}" \
+          -e "tfvars.NAME=${{ env.NAME }}" \
+          -e "ansible_user=${{ vars.ansible_user }}" \
+          -e "ansible_ssh_private_key_file=${{ env.SSH_KEY_FILE }}"
+          
+      - name: Purge GCP Credentials and SSH Key
+        if: always()
+        run: |
+          rm -f ${{ env.GCP_CREDENTIALS_FILE }} 
+          rm -f ${{ env.SSH_KEY_FILE }}
+        

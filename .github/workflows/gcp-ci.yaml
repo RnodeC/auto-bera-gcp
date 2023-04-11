@@ -124,7 +124,6 @@ jobs:
           ansible-playbook playbook.yaml -e @ansible-vars.yaml -vvv
 
       - name: Run ansible playbook to destroy infrastructure
-        working-directory: terraform/
         run: |
           ansible-playbook playbook.yaml -e @ansible-vars.yaml --tags down
 

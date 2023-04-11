@@ -44,14 +44,14 @@ jobs:
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v2
 
-      - name: Log terraform version
+      - name: Install Ansible
         run: |
+          sudo apt-get update
+          sudo apt-get install -y ansible
+          ansible-galaxy role install RnodeC.beranode
+          ansible-galaxy collection install -U community.general
+          ansible --version
           terraform version
-      #    sudo apt-get update
-      #    sudo apt-get install -y ansible
-      #    ansible-galaxy role install RnodeC.beranode
-      #    ansible-galaxy collection install -U community.general
-      #    ansible --version
 
       - name: Set up GCP credentials
         env:
@@ -106,15 +106,19 @@ jobs:
         working-directory: terraform/
         run: terraform apply -auto-approve -input=false tfplan    
         
-        #- name: Run ansible playbook to create and configure infrastructure
-        #  run: |
-        #    ansible-playbook playbook.yaml -e @ansible-vars.yaml -vvv
-        
       - name: Destroy Infrastructure
         working-directory: terraform/
         run: |
           terraform destroy -auto-approve
-      #  ansible-playbook playbook.yaml -e @ansible-vars.yaml --tags down
+
+      - name: Run ansible playbook to create and configure infrastructure
+        run: |
+          ansible-playbook playbook.yaml -e @ansible-vars.yaml -vvv
+
+      - name: Run ansible playbook to destroy infrastructure
+        working-directory: terraform/
+        run: |
+          ansible-playbook playbook.yaml -e @ansible-vars.yaml --tags down
 
       - name: Purge GCP Credentials and SSH Key
         if: always()

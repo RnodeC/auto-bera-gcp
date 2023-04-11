@@ -5,8 +5,9 @@
   gather_facts: false
 
   tasks:
+    - debug: var=tfvars
     - name: Terraform apply
-      shell:
+      community.general.terraform:
         state: present
         force_init: true
         project_path: terraform/

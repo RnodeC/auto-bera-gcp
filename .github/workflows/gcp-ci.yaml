@@ -3,6 +3,10 @@ name: CI Testing - Deploy and Destroy Beranode
 on:
   push:
     branches: main
+  pull_request:
+    types:
+      - opened
+      - synchronize
   workflow_dispatch:
     inputs:
       GCP_PROJECT:
@@ -76,6 +80,7 @@ jobs:
             NAME: ${{ env.NAME }}
             MACHINE_TYPE: ${{ github.event.inputs.MACHINE_TYPE }}
           EOF
+          cat ansible-vars.yaml
     
       - name: Run ansible playbook to create and configure infrastructure
         run: |

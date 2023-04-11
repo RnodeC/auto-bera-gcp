@@ -48,7 +48,7 @@ jobs:
       - name: Set up SSH Key
         env:
           SSH_KEY: ${{ secrets.SSH_KEY }}
-          SSH_PUBKEY: ${{ secrets.SSH_PUBKEY }}
+          SSH_PUBKEY: ${{ vars.SSH_PUBKEY }}
         run: |
           echo "$SSH_KEY" > id_rsa
           echo "$SSH_PUBKEY" > id_rsa.pub
@@ -64,7 +64,7 @@ jobs:
             -e "tfvars.GCP_CREDENTIALS_FILE=${{ env.GCP_CREDENTIALS_FILE }}" \
             -e "tfvars.NAME=${{ env.NAME }}" \
             -e "MACHINE_TYPE=${{ env.MACHINE_TYPE }}" \
-            -e "ansible_user=${{ vars.ansible_user }}" \
+            -e "ansible_user=${{ vars.ANSIBLE_USER }}" \
             -e "ansible_ssh_private_key_file=${{ env.SSH_KEY_FILE }}"
             
       - name: Destroy Infrastructure
@@ -74,7 +74,7 @@ jobs:
           -e "tfvars.GCP_REGION=${{ env.GCP_REGION }}" \
           -e "tfvars.GCP_CREDENTIALS_FILE=${{ env.GCP_CREDENTIALS_FILE }}" \
           -e "tfvars.NAME=${{ env.NAME }}" \
-          -e "ansible_user=${{ vars.ansible_user }}" \
+          -e "ansible_user=${{ vars.ANSIBLE_USER }}" \
           -e "ansible_ssh_private_key_file=${{ env.SSH_KEY_FILE }}"
           
       - name: Purge GCP Credentials and SSH Key

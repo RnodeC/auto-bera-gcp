@@ -49,6 +49,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ansible
           ansible-galaxy role install RnodeC.beranode
+          ansible-galaxy collection install -U community.general
           ansible --version
           terraform version
 

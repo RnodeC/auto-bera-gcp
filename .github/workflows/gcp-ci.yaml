@@ -27,7 +27,6 @@ on:
         required: false
         default: "n1-standard-2"
 
-
 env:
   GCP_PROJECT: ${{ github.event.inputs.GCP_PROJECT || vars.GCP_PROJECT }}
   NAME: ${{ github.event.inputs.NAME || 'rnodec-bera' }}
@@ -63,14 +62,19 @@ jobs:
           terraform version
 
       - name: Set up GCP credentials
+        env:
+          GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
         run: |
-          echo "${{ secrets.GCP_CREDENTIALS }}" > gcp_credentials.json
+          echo "$GCP_CREDENTIALS" > gcp_credentials.json
           echo "GCP_CREDENTIALS_FILE=$(pwd)/gcp_credentials.json" >> $GITHUB_ENV
 
       - name: Set up SSH Key
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_PUBKEY: ${{ vars.SSH_PUBKEY }}
         run: |
-          echo "${{ secrets.SSH_KEY }}" > id_rsa
-          echo "${{ vars.SSH_PUBKEY }}" > id_rsa.pub
+          echo "$SSH_KEY" > id_rsa
+          echo "$SSH_PUBKEY" > id_rsa.pub
           chmod 0600 id_rsa
           echo "SSH_KEY_FILE=$(pwd)/id_rsa" >> $GITHUB_ENV
           echo "SSH_PUBKEY_FILE=$(pwd)/id_rsa.pub" >> $GITHUB_ENV

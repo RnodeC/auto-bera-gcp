@@ -22,7 +22,7 @@ env:
   GCP_PROJECT: ${{ github.event.inputs.GCP_PROJECT || vars.GCP_PROJECT }}
   GCP_REGION: ${{ github.event.inputs.GCP_REGION || us-central1 }}
   NAME: ${{ github.event.inputs.NAME || "rnodec-bera" }}
-  MACHINE_TYPE: ${{ github.event.inputs.MACHINE_TYPE || "n1-standar-4" }}
+  MACHINE_TYPE: ${{ github.event.inputs.MACHINE_TYPE || "n1-standard-4" }}
 
 jobs:
   ansible-playbook:

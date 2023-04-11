@@ -46,12 +46,12 @@ jobs:
 
       - name: Install Ansible
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ansible
-          ansible-galaxy role install RnodeC.beranode
-          ansible-galaxy collection install -U community.general
-          ansible --version
           terraform version
+      #    sudo apt-get update
+      #    sudo apt-get install -y ansible
+      #    ansible-galaxy role install RnodeC.beranode
+      #    ansible-galaxy collection install -U community.general
+      #    ansible --version
 
       - name: Set up GCP credentials
         env:

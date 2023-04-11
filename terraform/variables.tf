@@ -57,15 +57,3 @@ variable "data_disk_type" {
   type        = string
   default     = "pd-ssd"
 }
-
-variable "ssh_pubkey_file" {
-  description = "The path to the ssh public key to authorize for this instance"
-  type        = string
-  default     = "~/.ssh/id_rsa.pub"
-}
-
-variable "allowed_cidrs" {
-  description = "CIDRs to allow ssh access"
-  type        = list(string)
-  default     = []
-}

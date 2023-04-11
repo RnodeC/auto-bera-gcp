@@ -1,0 +1,49 @@
+---
+name: CI Testing - Lint Code
+on:
+  push:
+    branches: main
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  yamlint:
+    name: Lint .yaml files
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install Python
+      uses: actions/setup-python@v4
+      with:
+          python-version: '3.x'
+    
+    - name: Install test dependencies
+      run: pip3 install yamllint
+    
+    - name: Lint code
+      run: |
+        yamllint .
+
+  tflint:
+    name: Lint terraform code
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v2
+    
+    - name: terraform validate 
+      working-directory: terraform
+      run: |
+        terraform init
+        terraform validate
+
+    - name: tflint
+      run: |
+        docker run --rm -v $(pwd)/terraform:/data -t ghcr.io/terraform-linters/tflint

@@ -1,5 +1,5 @@
 ---
-name: Run Ansible playbook
+name: CI Testing - Deploy and Destroy Beranode
 on:
   workflow_dispatch:
     inputs:

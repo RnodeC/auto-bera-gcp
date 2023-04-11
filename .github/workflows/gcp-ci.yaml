@@ -28,7 +28,7 @@ env:
   NAME: ${{ github.event.inputs.NAME || 'rnodec-bera' }}
   GCP_REGION: ${{ github.event.inputs.GCP_REGION || 'us-central1' }}
   MACHINE_TYPE: ${{ github.event.inputs.MACHINE_TYPE || 'n1-standard-2'}}
-  
+
 jobs:
   ansible-playbook:
     name: Run playbook
@@ -64,29 +64,30 @@ jobs:
           echo "SSH_KEY_FILE=$(pwd)/id_rsa" >> $GITHUB_ENV
           echo "SSH_PUBKEY_FILE=$(pwd)/id_rsa.pub" >> $GITHUB_ENV
 
+      - name: Set up ansible-vars
+        run: |
+          cat << EOF > ansible-vars.yaml
+          ansible_user: ${{ vars.ANSIBLE_USER }}
+          ansible_ssh_private_key_file: ${{ env.SSH_KEY_FILE }}
+          tfvars:
+            GCP_PROJECT: ${{ env.GCP_PROJECT }}
+            GCP_REGION: ${{ env.GCP_REGION }}
+            GCP_CREDENTIALS_FILE: ${{ env.GCP_CREDENTIALS_FILE }}
+            NAME: ${{ env.NAME }}
+            MACHINE_TYPE: ${{ github.event.inputs.MACHINE_TYPE }}
+          EOF
+    
       - name: Run ansible playbook to create and configure infrastructure
         run: |
-          ansible-playbook playbook.yaml \
-            -e "tfvars.GCP_PROJECT=${{ env.GCP_PROJECT }}" \
-            -e "tfvars.GCP_REGION=${{ env.GCP_REGION }}" \
-            -e "tfvars.GCP_CREDENTIALS_FILE=${{ env.GCP_CREDENTIALS_FILE }}" \
-            -e "tfvars.NAME=${{ env.NAME }}" \
-            -e "tfvars.MACHINE_TYPE=${{ github.event.inputs.MACHINE_TYPE }}" \
-            -e "ansible_user=${{ vars.ANSIBLE_USER }}" \
-            -e "ansible_ssh_private_key_file=${{ env.SSH_KEY_FILE }}"
-            
+          ansible-playbook playbook.yaml -e @ansible-vars.yaml
+   
       - name: Destroy Infrastructure
         run: |
-          ansible-playbook playbook.yaml --tags down \
-          -e "tfvars.GCP_PROJECT=${{ env.GCP_PROJECT }}"
-          -e "tfvars.GCP_REGION=${{ env.GCP_REGION }}" \
-          -e "tfvars.GCP_CREDENTIALS_FILE=${{ env.GCP_CREDENTIALS_FILE }}" \
-          -e "tfvars.NAME=${{ env.NAME }}" \
-          -e "ansible_user=${{ vars.ANSIBLE_USER }}" \
-          -e "ansible_ssh_private_key_file=${{ env.SSH_KEY_FILE }}"
+          ansible-playbook playbook.yaml -e @ansible-vars.yaml --tags down
 
       - name: Purge GCP Credentials and SSH Key
         if: always()
         run: |
           rm -f ${{ env.GCP_CREDENTIALS_FILE }} 
           rm -f ${{ env.SSH_KEY_FILE }}
+          rm -f ansible-vars.yaml

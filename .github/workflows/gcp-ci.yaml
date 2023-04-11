@@ -86,7 +86,7 @@ jobs:
           cat ansible-vars.yaml
             
           cat << EOF > "terraform/terraform.tfvars"
-          gcp_project = "${{ env.GCP_PROJECT }}
+          gcp_project = "${{ env.GCP_PROJECT }}"
           gcp_region = "${{ env.GCP_REGION }}"
           gcp_credentials_file = "${{ env.GCP_CREDENTIALS_FILE }}"
           name = "${{ env.NAME }}"

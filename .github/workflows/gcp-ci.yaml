@@ -66,7 +66,7 @@ jobs:
           GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
         run: |
           echo "$GCP_CREDENTIALS" > gcp_credentials.json
-          echo "GCP_CREDENTIALS_FILE=$(pwd)/gcp_credentials.json" >> $GITHUB_ENV
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp_credentials.json" >> $GITHUB_ENV
 
       - name: Set up SSH Key
         env:
@@ -89,7 +89,7 @@ jobs:
           tfvars:
             GCP_PROJECT: ${{ env.GCP_PROJECT }}
             GCP_REGION: ${{ env.GCP_REGION }}
-            GCP_CREDENTIALS_FILE: ${{ env.GCP_CREDENTIALS_FILE }}
+            GCP_CREDENTIALS_FILE: ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
             NAME: ${{ env.NAME }}
             MACHINE_TYPE: ${{ env.MACHINE_TYPE }}
           EOF
@@ -98,7 +98,7 @@ jobs:
           cat << EOF > "terraform/terraform.tfvars"
           gcp_project = "${{ env.GCP_PROJECT }}"
           gcp_region = "${{ env.GCP_REGION }}"
-          gcp_credentials_file = "${{ env.GCP_CREDENTIALS_FILE }}"
+          gcp_credentials_file = "${{ env.GOOGLE_APPLICATION_CREDENTIALS }}"
           name = "${{ env.NAME }}"
           machine_type = "${{ env.MACHINE_TYPE }}"
           EOF
@@ -122,6 +122,8 @@ jobs:
       #    terraform destroy -auto-approve
 
       - name: Run ansible playbook to create and configure infrastructure
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: 
         run: |
           ansible-playbook playbook.yaml -e @ansible-vars.yaml -vvv
 
@@ -132,6 +134,6 @@ jobs:
       - name: Purge GCP Credentials and SSH Key
         if: always()
         run: |
-          rm -f ${{ env.GCP_CREDENTIALS_FILE }}
+          rm -f ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
           rm -f ${{ env.SSH_KEY_FILE }}
           rm -f ansible-vars.yaml

@@ -34,10 +34,10 @@ jobs:
 
       - name: Install Ansible
         run: |
-          apt-get update 
-          apt-get install -y ansible
+          sudo apt-get update 
+          sudo apt-get install -y ansible
           ansible-galaxy role install RnodeC.beranode
-          
+
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v2
 

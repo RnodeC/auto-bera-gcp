@@ -78,7 +78,7 @@ jobs:
             GCP_REGION: ${{ env.GCP_REGION }}
             GCP_CREDENTIALS_FILE: ${{ env.GCP_CREDENTIALS_FILE }}
             NAME: ${{ env.NAME }}
-            MACHINE_TYPE: ${{ github.event.inputs.MACHINE_TYPE }}
+            MACHINE_TYPE: ${{ env.MACHINE_TYPE }}
           EOF
           cat ansible-vars.yaml
     

@@ -37,7 +37,14 @@ jobs:
 
     - name: Install Terraform
       uses: hashicorp/setup-terraform@v2
-    
+
+    - name: Set up GCP credentials
+      env:
+        GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+      run: |
+        echo "$GCP_CREDENTIALS" > gcp_credentials.json
+        echo "GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp_credentials.json" >> $GITHUB_ENV
+
     - name: terraform validate 
       working-directory: terraform
       run: |

@@ -1,7 +1,7 @@
 provider "google" {
   project     = var.gcp_project
   region      = var.gcp_region
-  zone         = "${var.gcp_region}-a"
+  zone        = "${var.gcp_region}-a"
   credentials = file(var.gcp_credentials_file)
 }
 
@@ -18,9 +18,9 @@ resource "google_compute_subnetwork" "subnet" {
 }
 
 resource "google_compute_disk" "persistent_disk" {
-  name  = "${var.name}-data"
-  type  = var.data_disk_type
-  size  = var.data_disk_size
+  name   = "${var.name}-data"
+  type   = var.data_disk_type
+  size   = var.data_disk_size
   labels = var.labels
 }
 
@@ -43,9 +43,9 @@ resource "google_compute_firewall" "firewall" {
 resource "google_compute_instance" "instance" {
   name         = "${var.name}-vm"
   machine_type = var.machine_type
-  labels = var.labels
+  labels       = var.labels
 
-  
+
   boot_disk {
     initialize_params {
       image = var.boot_disk_image
@@ -57,7 +57,7 @@ resource "google_compute_instance" "instance" {
   }
 
   network_interface {
-    network = google_compute_network.network.self_link
+    network    = google_compute_network.network.self_link
     subnetwork = google_compute_subnetwork.subnet.self_link
     access_config {
       nat_ip = google_compute_address.public_ip.address

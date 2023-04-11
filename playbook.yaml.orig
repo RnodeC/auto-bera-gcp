@@ -6,24 +6,13 @@
 
   tasks:
     - debug: msg="{{ tfvars | lower }}"
-
-    - name: Initialize Terraform
-      command: terraform init
-      args:
-        chdir: terraform/
-
-    - name: Run Terraform plan
-      command: terraform plan -out=tfplan -var-file terraform.tfvars
-      args:
-        chdir: terraform/
-    
-    - name: Apply Terraform changes
-      command: terraform apply -auto-approve -input=false tfplan 
-      args:
-        chdir: terraform/
-      register: tfapply 
-
-    - debug: var=tfapply
+    - name: Terraform apply
+      community.general.terraform:
+        state: present
+        project_path: terraform/
+        force_init: true
+        variables: "{{ tfvars | lower }}"
+      register: tfapply
 
     - name: Add instance to inventory
       ansible.builtin.add_host:
